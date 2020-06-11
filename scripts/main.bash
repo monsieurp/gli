@@ -12,7 +12,7 @@ for further information.
 Would you like to begin the installation?' 0 0
 RC=$?
 
-if [[ ${} -eq 1 ]]; then
+if [[ ${RC} -eq 1 ]]; then
     exit 0
 fi
 
