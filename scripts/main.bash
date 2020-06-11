@@ -1,6 +1,3 @@
-. "${GLI_SCRIPTSDIR}/error.bash"
-trap error SIGINT
-
 "${GLI_D}" \
     --title 'Welcome to GLI!' \
     --backtitle "${GLI_BTITLE}" \
