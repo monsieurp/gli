@@ -10,7 +10,7 @@ function gli_yesno_install()
         --no-label 'Shell' \
         --yesno 'Welcome to the Gentoo Linux Installer!
 
-The GLI simplifies the installation of Gentoo Linux as described
+GLI simplifies the installation of Gentoo Linux as described
 in the Gentoo Linux handbook. See https://wiki.gentoo.org/wiki/Handbook
 for further information.
 
@@ -21,7 +21,7 @@ Would you like to begin the installation?' 0 0
 function gli_back_to_shell()
 {
     "${GLI_D}" \
-        --title 'Back to the shell' \
+        --title 'GLI - Shell' \
         --backtitle "${GLI_BTITLE}" \
         --msgbox 'Going back to the shell.
 
