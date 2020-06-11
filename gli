@@ -17,6 +17,8 @@ shift $(( $OPTIND - 1 ))
 # Load main menu by default.
 GLI_SCRIPT=${1:-main}; shift
 
+# Basic logging.
+rm /tmp/gli.log
 echo "Opening ${GLI_SCRIPTSDIR}/${GLI_MENU}.bash" >> /tmp/gli.log
 
 exec "${GLI_SCRIPTSDIR}/${GLI_MENU}.bash" "$@" 2> /dev/null

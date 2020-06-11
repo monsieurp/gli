@@ -5,8 +5,8 @@ PREFIX=   /usr/share/$(PROGNAME)-$(VERSION)
 .PHONY: install
 install: gli
 	mkdir -p $(DESTDIR)$(PREFIX)
-	$(foreach menu, $(wildcard ./menus/*), \
-		install -m 755 $(menu) $(DESTDIR)$(PREFIX) \
+	$(foreach script, $(wildcard ./scripts/*), \
+		install -m 755 $(script) $(DESTDIR)$(PREFIX) \
 	;)
 	install -m 755 $< $(DESTDIR)/usr/bin
 
