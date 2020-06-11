@@ -19,6 +19,6 @@ GLI_SCRIPT=${1:-main}; shift
 
 # Basic logging.
 rm -f /tmp/gli.log
-echo "Opening ${GLI_SCRIPTSDIR}/${GLI_MENU}.bash" >> /tmp/gli.log
+echo "Opening ${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" >> /tmp/gli.log
 
-exec "${GLI_SCRIPTSDIR}/${GLI_MENU}.bash" "$@" 2> /dev/null
+exec "${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" "$@" 2> /dev/null
