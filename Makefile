@@ -1,4 +1,6 @@
-PREFIX= /usr/share/gli
+PROGNAME= gli
+VERSION=  0.1
+PREFIX=   /usr/share/$(PROGNAME)-$(VERSION)
 
 .PHONY: install
 install: gli
