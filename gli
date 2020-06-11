@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-. gli_variables
+: ${GLI_PROGNAME="gli"};
+: ${GLI_VERSION="0.1"};
+: ${GLI_MENUSDIR="/usr/share/${GLI_PROGNAME}-${GLI_VERSION}"};
+
+. ${GLI_MENUSDIR}/variables
 
 function gli_yesno_install()
 {

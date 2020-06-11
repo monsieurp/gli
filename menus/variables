@@ -1,2 +1,2 @@
-: ${GLI_D="dialog"}; export ${GLI_D}
-: ${GLI_BTITLE="GLI - Gentoo Linux Installer"}; export GLI_BTITLE
+: ${GLI_D="dialog"};
+: ${GLI_BTITLE="GLI - Gentoo Linux Installer"};
