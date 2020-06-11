@@ -6,7 +6,7 @@ PREFIX=   /usr/share/$(PROGNAME)-$(VERSION)
 install: gli
 	mkdir -p $(DESTDIR)$(PREFIX)
 	$(foreach menu, $(wildcard ./menus/*), \
-		install -m 644 $(menu) $(DESTDIR)$(PREFIX) \
+		install -m 755 $(menu) $(DESTDIR)$(PREFIX) \
 	;)
 	install -m 755 $< $(DESTDIR)/usr/bin
 
