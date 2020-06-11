@@ -1,8 +1,8 @@
+trap true SIGINT
+
 "${GLI_D}" \
     --title 'Welcome to GLI!' \
     --backtitle "${GLI_BTITLE}" \
-    --yes-label 'Install' \
-    --no-label 'Exit' \
     --yesno 'Welcome to the Gentoo Linux Installer!
 
 GLI simplifies the installation of Gentoo Linux as described
@@ -13,8 +13,13 @@ Would you like to begin the installation?' 0 0
 RC=$?
 
 if [[ ${RC} -eq 1 ]]; then
-    exit 0
+    exit 1
 fi
 
-gli sshd
-gli networking
+# SSHd setup is optional.
+trap true SIGINT
+gli sshd || exit 0
+
+# Networking is required.
+trap 'gli error' SIGINT
+gli networking || gli error "Networking setup failed!"

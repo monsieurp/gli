@@ -27,11 +27,10 @@ if [[ ${RC} -eq 0 ]]; then
             --yesno "Could not start sshd:
     
     ${OUTPUT}" 0 0
+        RC=$?
+        if [[ ${RC} -eq 0 ]]; then
+            gli main
+        fi
     fi
     
-    RC=$?
-    
-    if [[ ${RC} -eq 0 ]]; then
-        gli main
-    fi
 fi

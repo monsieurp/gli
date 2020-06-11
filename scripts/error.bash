@@ -1,19 +1,14 @@
-function error()
-{
-    local e
-    if [[ -n "$1" ]]; then
-            e="$1\n\n"
-    fi
-    "${GLI_D}" \
-        --title 'GLI - Abort!' \
-        --backtitle "${GLI_BTITLE}" \
-        --yes-label 'Restart' \
-        --no-label 'Abort' \
-        --yesno "${e}An installation step has been aborted. Would you like to restart the installation or exit the installer?"
-    RC=$?
-    if [[ $? -eq 0 ]]; then
-        gli main
-    else
-        exit 1
-    fi
-}
+ERROR=$1
+if [[ -n ${ERROR} ]]; then
+    ERROR="${ERROR}\n\n"
+fi
+
+"${GLI_D}" \
+    --title 'GLI - Error!' \
+    --backtitle "${GLI_BTITLE}" \
+    --yes-label 'Restart' \
+    --no-label 'Exit' \
+    --yesno "${ERROR}GLI encountered an error.
+
+Would you like to restart
+GLI or exit now?" 0 0 && exec gli main || exit 1

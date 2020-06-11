@@ -8,6 +8,7 @@
 # Load variables.
 . ${GLI_SCRIPTSDIR}/variables.bash
 
+
 # Ignore flags.
 while getopts ":h:" ignored; do
     :
