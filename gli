@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+. gli_variables
+
+function gli_yesno_install()
+{
+    "${GLI_D}" \
+        --title 'Welcome to GLI!' \
+        --backtitle "${GLI_BTITLE}" \
+        --yes-label 'Install' \
+        --no-label 'Shell' \
+        --yesno 'Welcome to the Gentoo Linux Installer!
+
+The GLI simplifies the installation of Gentoo Linux as described
+in the Gentoo Linux handbook. See https://wiki.gentoo.org/wiki/Handbook
+for further information.
+
+Would you like to begin the installation?' 0 0
+    return $?
+}
+
+function gli_back_to_shell()
+{
+    "${GLI_D}" \
+        --title 'Back to the shell' \
+        --backtitle "${GLI_BTITLE}" \
+        --msgbox 'Going back to the shell.
+
+Bye!' 0 0
+
+}
+
+function gli_yesno_start_ssh()
+{
+    local rc
+    "${GLI_D}" \
+        --title 'GLI - Start sshd' \
+        --backtitle "${GLI_BTITLE}" \
+        --yesno 'Would you like to start sshd for this installation?
+
+sshd can be started to allow other users
+to access the system during the installation.' 0 0
+    rc=$? 
+    return ${rc}
+}
+
+function gli_cmd_start_ssh()
+{
+    local output rc
+    local gli_title='GLI - Start sshd'
+    output=$(rc-service sshd start 2>&1 > /dev/null)
+    rc=$?
+    if [[ ${rc} -eq 0 ]]; then
+        "${GLI_D}" \
+            --title "${gli_title}" \
+            --backtitle "${GLI_BTITLE}" \
+            --msgbox "sshd started successfully!" 0 0
+        return ${rc}
+    else
+        "${GLI_D}" \
+            --title "${gli_title}" \
+            --backtitle "${GLI_BTITLE}" \
+            --yes-label "Restart Installation" \
+            --no-label "Continue" \
+            --yesno "Could not start sshd:
+
+${output}" 0 0
+        rc=$?
+        if [[ ${rc} -eq 0 ]]; then
+            gli_main
+        fi
+    fi
+}
+
+function gli_configure_network()
+{
+    local output rc iface interfaces my_interface
+    local gli_title='GLI - Configure network'
+    for iface in $(ls /sys/class/net); do
+        [[ ${iface} =~ (lo|lo0) ]] && continue
+        interfaces+=( "${iface}" "${iface}" )
+    done
+
+    if [[ -z "${interfaces[@]}" ]]; then
+        "${GLI_D}" \
+            --title "${gli_title}" \
+            --backtitle "${GLI_BTITLE}" \
+            --msgbox 'No network interface found to configure.' 0 0
+        exit 1
+    fi
+
+    exec 3>&1
+    my_interface=$( echo "${interfaces[@]}" | xargs \
+        "${GLI_D}" \
+        --title "${gli_title}" \
+        --backtitle "${GLI_BTITLE}" \
+        --menu 'Please select a network interface to configure:' 0 0 0 \
+2>&1 >&3 )
+    exec 3>&-
+
+    echo "my_interface: ${my_interface}"
+}
+
+function gli_main()
+{
+    gli_yesno_install
+    if [[ $? -eq 1 ]]; then
+        gli_back_to_shell
+        exit 0
+    fi
+
+    gli_yesno_start_ssh
+    if [[ $? -eq 0 ]]; then
+        gli_cmd_start_ssh
+    fi
+
+    gli_configure_network
+}
+
+gli_main
