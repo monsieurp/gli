@@ -8,17 +8,26 @@
 # Load variables.
 . ${GLI_SCRIPTSDIR}/variables.bash
 
-
-# Ignore flags.
-while getopts ":h:" ignored; do
-    :
+# Parse opts.
+while getopts ":d" opt; do
+  case ${opt} in
+     d)
+         export GLI_DEBUG=1
+         gli_debug "GLI started!"
+      ;;
+    *)
+        echo "usage: $0 [-h] [-d]"
+        exit 1
+      ;;
+  esac
 done
 shift $(( $OPTIND - 1 ))
 
 # Load main menu by default.
 GLI_SCRIPT=${1:-main}; shift
 
-# Basic logging.
-echo "Opening ${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" >> /tmp/gli.log
+if [[ ${GLI_DEBUG} -eq 1 ]]; then
+    gli_debug "main: current = [${GLI_SCRIPTSDIR}/${GLI_SCRIPT}]"
+fi
 
 exec "${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" "$@" 2> /dev/null

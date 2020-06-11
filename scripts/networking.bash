@@ -6,6 +6,10 @@ for IFACE in $(ls /sys/class/net); do
     INTERFACES+=( "${IFACE}" "${IFACE}" )
 done
 
+if [[ ${GLI_DEBUG} -eq 1 ]]; then
+    gli_debug "networking: INTERFACES = [${INTERFACES[@]}]"
+fi
+
 if [[ -z "${INTERFACES[@]}" ]]; then
     "${GLI_D}" \
         --title "${GLI_TITLE}" \

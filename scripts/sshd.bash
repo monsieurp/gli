@@ -12,6 +12,11 @@ RC=$?
 if [[ ${RC} -eq 0 ]]; then
     OUTPUT=$(rc-service sshd start 2>&1 > /dev/null)
     RC=$?
+
+    if [[ ${GLI_DEBUG} -eq 1 ]]; then
+        gli_debug "sshd: OUTPUT = [${OUTPUT}]"
+        gli_debug "sshd: RC = [${RC}]"
+    fi
     
     if [[ ${RC} -eq 0 ]]; then
         "${GLI_D}" \
