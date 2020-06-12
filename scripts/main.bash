@@ -21,9 +21,6 @@ fi
 # Don't catch SIGINT here.
 trap true SIGINT
 
-# Exit quietly (skip it).
-gli sshd || exit 1
-
 # Networking is required.
 # Restart if configuration fails.
 gli networking || gli error 'Networking setup failed!'
