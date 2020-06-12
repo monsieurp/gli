@@ -3,7 +3,7 @@
 # Required variables.
 : ${GLI_PROGNAME="gli"};
 : ${GLI_VERSION="0.1"};
-: ${GLI_SCRIPTSDIR="/usr/share/${GLI_PROGNAME}-${GLI_VERSION}"};
+: ${GLI_SCRIPTSDIR="./scripts"}
 
 # Load variables.
 . ${GLI_SCRIPTSDIR}/variables.bash
