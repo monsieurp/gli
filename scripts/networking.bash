@@ -1,3 +1,5 @@
+. ${GLI_SCRIPTSDIR}/variables.bash
+_0=$(basename $0); _0=${_0%%.bash};
 GLI_TITLE='GLI - Configure network'
 INTERFACES=()
 
@@ -7,7 +9,7 @@ for IFACE in $(ls /sys/class/net); do
 done
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "networking: INTERFACES = [${INTERFACES[@]}]"
+    gli_debug "${_0}: INTERFACES = [${INTERFACES[@]}]"
 fi
 
 if [[ -z "${INTERFACES[@]}" ]]; then
@@ -27,6 +29,10 @@ MY_INTERFACE=$( echo "${INTERFACES[@]}" | xargs \
 2>&1 >&3 )
 exec 3>&-
 
+if [[ ${GLI_DEBUG} -eq 1 ]]; then
+    gli_debug "${_0}: MY_INTERFACE = [${MY_INTERFACE}]"
+fi
+
 if [[ -z ${MY_INTERFACE} ]]; then
     exit 1
 fi
@@ -40,6 +46,10 @@ MY_METHOD=$( "${GLI_D}" \
     "2" "Static IPv4" OFF \
 2>&1 >&3 )
 exec 3>&-
+
+if [[ ${GLI_DEBUG} -eq 1 ]]; then
+    gli_debug "${_0}: MY_METHOD = [${MY_METHOD}]"
+fi
 
 ERROR=0
 case "${MY_METHOD}" in
@@ -86,6 +96,10 @@ ${SUB}
             split($0, a, " ");
             printf "%s %s %s", a[1], a[2], a[3];
         }') )
+
+        if [[ ${GLI_DEBUG} -eq 1 ]]; then
+            gli_debug "${_0}: MY_IPV4 = [${MY_IPV4}]"
+        fi
 
         MY_IPV4_COMMANDS=(
             "ifconfig ${MY_INTERFACE} down"

@@ -1,3 +1,5 @@
+. ${GLI_SCRIPTSDIR}/variables.bash
+_0=$(basename $0); _0=${_0%%.bash};
 GLI_TITLE='GLI - Start sshd'
 ERROR=0
 
@@ -15,10 +17,10 @@ if [[ ${RC} -eq 0 ]]; then
     RC=$?
 
     if [[ ${GLI_DEBUG} -eq 1 ]]; then
-        gli_debug "sshd: OUTPUT = [${OUTPUT}]"
-        gli_debug "sshd: RC = [${RC}]"
+        gli_debug "${_0}: OUTPUT = [${OUTPUT}]"
+        gli_debug "${_0}: RC = [${RC}]"
     fi
-    
+
     if [[ ${RC} -eq 0 ]]; then
         "${GLI_D}" \
             --title "${GLI_TITLE}" \

@@ -4,6 +4,7 @@
 : ${GLI_PROGNAME="gli"};
 : ${GLI_VERSION="0.1"};
 : ${GLI_SCRIPTSDIR="./scripts"}
+export GLI_SCRIPTSDIR
 
 # Load variables.
 . ${GLI_SCRIPTSDIR}/variables.bash
@@ -27,7 +28,7 @@ shift $(( $OPTIND - 1 ))
 GLI_SCRIPT=${1:-main}; shift
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "main: current = [${GLI_SCRIPTSDIR}/${GLI_SCRIPT}]"
+    gli_debug "main: reading [${GLI_SCRIPTSDIR}/${GLI_SCRIPT}]"
 fi
 
 exec "${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" "$@" 2> /dev/null
