@@ -27,37 +27,48 @@ MY_INTERFACE=$( echo "${INTERFACES[@]}" | xargs \
 2>&1 >&3 )
 exec 3>&-
 
+if [[ -z ${MY_INTERFACE} ]]; then
+    exit 1
+fi
+
 exec 3>&1
 MY_METHOD=$( "${GLI_D}" \
-        --title "${GLI_TITLE}" \
-        --backtitle "${GLI_BTITLE}" \
-        --radiolist "How do you want to configure ${MY_INTERFACE}?" 0 0 0 \
-        "1" "DHCP" ON \
-        "2" "Static IPv4" OFF \
+    --title "${GLI_TITLE}" \
+    --backtitle "${GLI_BTITLE}" \
+    --radiolist "How do you want to configure ${MY_INTERFACE}?" 0 0 0 \
+    "1" "DHCP" ON \
+    "2" "Static IPv4" OFF \
 2>&1 >&3 )
 exec 3>&-
 
-echo "${MY_METHOD}"
-
+ERROR=0
 case "${MY_METHOD}" in
     1)
         "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching dhcpcd on ${MY_INTERFACE} ..." 0 0
-            output=$( dhcpcd -4 ${MY_INTERFACE} 2>&1 )
+            SUB=$( dhcpcd -4 ${MY_INTERFACE} 2>&1 )
             RC=$?
             if [[ ${RC} -ne 0 ]]; then
                 "${GLI_D}" \
                     --title "${GLI_TITLE}" \
                     --backtitle "${GLI_BTITLE}" \
-                    --msgbox "Failed to get DHCP lease for ${MY_INTERFACE}!" 0 0
-                exec $0
+                    --msgbox "Failed to get DHCP lease for ${MY_INTERFACE}!
+
+${SUB}
+" 0 0
+            ERROR=1
+            else
+                "${GLI_D}" \
+                    --title "${GLI_TITLE}" \
+                    --backtitle "${GLI_BTITLE}" \
+                    --msgbox "DHCP lease for ${MY_INTERFACE} acquired successfully!"
             fi
     ;;
     2)
         exec 3>&1
-        MY_IFCONFIG=$( "${GLI_D}" \
+        MY_IPV4=$( "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --form 'IPv4 configuration' 0 0 0 \
@@ -70,6 +81,39 @@ case "${MY_METHOD}" in
             exit 1;
         fi
         exec 3>&-
-        printf '[%s]\n' ${MY_IFCONFIG}
+
+        MY_IPV4=( $(echo "${MY_IPV4}" | tr '\n' ' ' | awk '{
+            split($0, a, " ");
+            printf "%s %s %s", a[1], a[2], a[3];
+        }') )
+
+        MY_IPV4_COMMANDS=(
+            "ifconfig ${MY_INTERFACE} down"
+            "ifconfig ${MY_INTERFACE} ${MY_IPV4[0]} netmask ${MY_IPV4[1]} up"
+            "ip route del default"
+            "ip route add default via ${MY_IPV4[2]} dev ${MY_INTERFACE}"
+        )
+        LEN=${#MY_IPV4_COMMANDS[*]}
+
+        for (( i = 0; i <= $(( $LEN -1 )); i++ )); do
+            SUB=$( ${MY_IPV4_COMMANDS[$i]} 2>&1 )
+            RC=$?
+            if [[ $RC -eq 0 ]]; then
+                "${GLI_D}" \
+                    --title "${GLI_TITLE}" \
+                    --backtitle "${GLI_BTITLE}" \
+                    --msgbox "\"${MY_IPV4_COMMANDS[$i]}\" ran without error!" 0 0
+            else
+                "${GLI_D}" \
+                    --title "${GLI_TITLE}" \
+                    --backtitle "${GLI_BTITLE}" \
+                    --msgbox "\"${MY_IPV4_COMMANDS[$i]}\" failed!
+
+${SUB}" 0 0
+                ERROR=1
+            fi
+        done
     ;;
 esac
+
+exit ${ERROR}

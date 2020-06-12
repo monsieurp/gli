@@ -13,13 +13,19 @@ See https://wiki.gentoo.org/wiki/Handbook for further information.
 Would you like to begin the installation with GLI?' 0 0
 RC=$?
 
-if [[ ${RC} -eq 1 ]]; then
-    exit 1
-fi
+case ${RC} in
+    1)
+        exit 1
+    ;;
+    *)
+        :
+    ;;
+esac
 
 # SSHd setup is optional.
 # Don't catch SIGINT here.
 trap true SIGINT
+gli sshd || exec $0
 
 # Networking is required.
 # Restart if configuration fails.

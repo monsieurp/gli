@@ -1,4 +1,5 @@
 GLI_TITLE='GLI - Start sshd'
+ERROR=0
 
 "${GLI_D}" \
     --title 'GLI - Start sshd' \
@@ -10,7 +11,7 @@ to access the system during the installation.' 0 0
 RC=$?
 
 if [[ ${RC} -eq 0 ]]; then
-    OUTPUT=$(rc-service sshd start 2>&1 > /dev/null)
+    OUTPUT=$( rc-service sshd start 2>&1 > /dev/null )
     RC=$?
 
     if [[ ${GLI_DEBUG} -eq 1 ]]; then
@@ -27,15 +28,13 @@ if [[ ${RC} -eq 0 ]]; then
         "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
-            --yes-label "Restart Installation" \
-            --no-label "Continue" \
+            --yes-label "Continue" \
+            --no-label "Restart Installation" \
             --yesno "Could not start sshd:
     
     ${OUTPUT}" 0 0
-        RC=$?
-        if [[ ${RC} -eq 0 ]]; then
-            gli main
-        fi
+        ERROR=$?
     fi
-    
 fi
+
+exit ${ERROR}
