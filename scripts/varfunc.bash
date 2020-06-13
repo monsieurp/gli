@@ -1,4 +1,4 @@
-# GLI variables definition.
+# GLI variables and helper functions definition.
 
 : ${GLI_D='dialog'};
 : ${GLI_BTITLE='GLI - Gentoo Linux Installer'};

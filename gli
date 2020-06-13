@@ -6,8 +6,8 @@
 : ${GLI_SCRIPTSDIR="./scripts"}
 export GLI_SCRIPTSDIR
 
-# Load variables.
-. ${GLI_SCRIPTSDIR}/variables.bash
+# Load variables and functions.
+. ${GLI_SCRIPTSDIR}/varfunc.bash
 
 # Parse opts.
 while getopts ":d" opt; do

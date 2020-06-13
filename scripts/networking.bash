@@ -1,4 +1,4 @@
-. ${GLI_SCRIPTSDIR}/variables.bash
+. ${GLI_SCRIPTSDIR}/varfunc.bash
 _0=$(basename $0); _0=${_0%%.bash};
 
 GLI_TITLE='GLI - Network configuration'
