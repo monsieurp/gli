@@ -1,5 +1,6 @@
 . ${GLI_SCRIPTSDIR}/variables.bash
 _0=$(basename $0); _0=${_0%%.bash};
+
 GLI_TITLE='GLI - Start sshd'
 ERROR=0
 
@@ -17,8 +18,8 @@ if [[ ${RC} -eq 0 ]]; then
     RC=$?
 
     if [[ ${GLI_DEBUG} -eq 1 ]]; then
-        gli_debug "${_0}: OUTPUT = [${OUTPUT}]"
-        gli_debug "${_0}: RC = [${RC}]"
+        gli_debug "${_0}: rc-service sshd start = ${RC}"
+        gli_debug "${_0}: rc-service sshd start = ${OUTPUT}"
     fi
 
     if [[ ${RC} -eq 0 ]]; then

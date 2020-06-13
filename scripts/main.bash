@@ -29,4 +29,4 @@ gli sshd || exec $0
 
 # Networking is required.
 # Restart if configuration fails.
-gli networking || gli error 'Networking setup failed!'
+gli networking || gli error 'Network configuration failed!'

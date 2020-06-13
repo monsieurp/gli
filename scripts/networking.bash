@@ -1,15 +1,23 @@
 . ${GLI_SCRIPTSDIR}/variables.bash
 _0=$(basename $0); _0=${_0%%.bash};
-GLI_TITLE='GLI - Configure network'
-INTERFACES=()
 
-for IFACE in $(ls /sys/class/net); do
+GLI_TITLE='GLI - Network configuration'
+INTERFACES=()
+METHODS=$(cat << 'EOF'
+DHCPv4|Get IPv4 using dhcpcd
+DHCPv6|Get IPv6 using dhcpcd
+Static IPv4|Set up IPv4 manually
+EOF
+)
+
+for IFACE in /sys/class/net/*; do
+    IFACE=$(basename ${IFACE})
     [[ ${IFACE} =~ (lo|lo0) ]] && continue
     INTERFACES+=( "${IFACE}" "${IFACE}" )
 done
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: INTERFACES = [${INTERFACES[@]}]"
+    gli_debug "${_0}: INTERFACES = ${INTERFACES[@]}"
 fi
 
 if [[ -z "${INTERFACES[@]}" ]]; then
@@ -30,41 +38,48 @@ MY_INTERFACE=$( echo "${INTERFACES[@]}" | xargs \
 exec 3>&-
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: MY_INTERFACE = [${MY_INTERFACE}]"
+    gli_debug "${_0}: MY_INTERFACE = ${MY_INTERFACE}"
 fi
 
 if [[ -z ${MY_INTERFACE} ]]; then
     exit 1
 fi
 
-exec 3>&1
-MY_METHOD=$( "${GLI_D}" \
+GLI_D_METHODS=$(cat << EOF
+${GLI_D} \
     --title "${GLI_TITLE}" \
     --backtitle "${GLI_BTITLE}" \
-    --radiolist "How do you want to configure ${MY_INTERFACE}?" 0 0 0 \
-    "1" "DHCP" ON \
-    "2" "Static IPv4" OFF \
-2>&1 >&3 )
+    --menu "How do you want to configure ${MY_INTERFACE}?" 0 0 0 \
+    $(gli_fmt_d_menu "${METHODS}")
+EOF
+)
+
+exec 3>&1
+MY_METHOD=$( eval ${GLI_D_METHODS} 2>&1 >&3 )
 exec 3>&-
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: MY_METHOD = [${MY_METHOD}]"
+    gli_debug "${_0}: MY_METHOD = ${MY_METHOD}"
+fi
+
+if [[ -z ${MY_METHOD} ]]; then
+    exit 1
 fi
 
 ERROR=0
 case "${MY_METHOD}" in
-    1)
+    "DHCPv4")
         "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
-            --infobox "Launching dhcpcd on ${MY_INTERFACE} ..." 0 0
+            --infobox "Launching \"dhcpcd -4\" on ${MY_INTERFACE} ..." 0 0
             SUB=$( dhcpcd -4 ${MY_INTERFACE} 2>&1 )
             RC=$?
             if [[ ${RC} -ne 0 ]]; then
                 "${GLI_D}" \
                     --title "${GLI_TITLE}" \
                     --backtitle "${GLI_BTITLE}" \
-                    --msgbox "Failed to get DHCP lease for ${MY_INTERFACE}!
+                    --msgbox "Failed to get DHCPv4 lease for ${MY_INTERFACE}!
 
 ${SUB}
 " 0 0
@@ -73,10 +88,45 @@ ${SUB}
                 "${GLI_D}" \
                     --title "${GLI_TITLE}" \
                     --backtitle "${GLI_BTITLE}" \
-                    --msgbox "DHCP lease for ${MY_INTERFACE} acquired successfully!"
+                    --msgbox "DHCPv4 lease for ${MY_INTERFACE} acquired successfully!"
+            fi
+
+            if [[ ${GLI_DEBUG} -eq 1 ]]; then
+                gli_debug "${_0}: dhcpcd -4 = ${RC}"
+                gli_debug "${_0}: dhcpcd -4 = ${SUB}"
             fi
     ;;
-    2)
+
+    "DHCPv6")
+        "${GLI_D}" \
+            --title "${GLI_TITLE}" \
+            --backtitle "${GLI_BTITLE}" \
+            --infobox "Launching \"dhcpcd -6\" on ${MY_INTERFACE} ..." 0 0
+            SUB=$( dhcpcd -6 ${MY_INTERFACE} 2>&1 )
+            RC=$?
+            if [[ ${RC} -ne 0 ]]; then
+                "${GLI_D}" \
+                    --title "${GLI_TITLE}" \
+                    --backtitle "${GLI_BTITLE}" \
+                    --msgbox "Failed to get DHCPv6 lease for ${MY_INTERFACE}!
+
+${SUB}
+" 0 0
+            ERROR=1
+            else
+                "${GLI_D}" \
+                    --title "${GLI_TITLE}" \
+                    --backtitle "${GLI_BTITLE}" \
+                    --msgbox "DHCPv6 lease for ${MY_INTERFACE} acquired successfully!"
+            fi
+
+            if [[ ${GLI_DEBUG} -eq 1 ]]; then
+                gli_debug "${_0}: dhcpcd -6 = ${RC}"
+                gli_debug "${_0}: dhcpcd -6 = ${SUB}"
+            fi
+    ;;
+
+    "Static IPv4")
         exec 3>&1
         MY_IPV4=$( "${GLI_D}" \
             --title "${GLI_TITLE}" \
