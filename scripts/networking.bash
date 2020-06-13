@@ -73,28 +73,28 @@ case "${MY_METHOD}" in
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching \"dhcpcd -4\" on ${MY_INTERFACE} ..." 0 0
-            SUB=$( dhcpcd -4 ${MY_INTERFACE} 2>&1 )
-            RC=$?
-            if [[ ${RC} -ne 0 ]]; then
-                "${GLI_D}" \
-                    --title "${GLI_TITLE}" \
-                    --backtitle "${GLI_BTITLE}" \
-                    --msgbox "Failed to get DHCPv4 lease for ${MY_INTERFACE}!
+        SUB=$( dhcpcd -4 ${MY_INTERFACE} 2>&1 )
+        RC=$?
+        if [[ ${RC} -ne 0 ]]; then
+            "${GLI_D}" \
+                --title "${GLI_TITLE}" \
+                --backtitle "${GLI_BTITLE}" \
+                --msgbox "Failed to get DHCPv4 lease for ${MY_INTERFACE}!
 
 ${SUB}
 " 0 0
-            ERROR=1
-            else
-                "${GLI_D}" \
-                    --title "${GLI_TITLE}" \
-                    --backtitle "${GLI_BTITLE}" \
-                    --msgbox "DHCPv4 lease for ${MY_INTERFACE} acquired successfully!"
-            fi
+        ERROR=1
+        else
+            "${GLI_D}" \
+                --title "${GLI_TITLE}" \
+                --backtitle "${GLI_BTITLE}" \
+                --msgbox "DHCPv4 lease for ${MY_INTERFACE} acquired successfully!"
+        fi
 
-            if [[ ${GLI_DEBUG} -eq 1 ]]; then
-                gli_debug "${_0}: dhcpcd -4 = ${RC}"
-                gli_debug "${_0}: dhcpcd -4 = ${SUB}"
-            fi
+        if [[ ${GLI_DEBUG} -eq 1 ]]; then
+            gli_debug "${_0}: dhcpcd -4 ${MY_INTERFACE} = ${RC}"
+            gli_debug "${_0}: dhcpcd -4 ${MY_INTERFACE} = ${SUB}"
+        fi
     ;;
 
     "DHCPv6")
@@ -102,33 +102,33 @@ ${SUB}
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching \"dhcpcd -6\" on ${MY_INTERFACE} ..." 0 0
-            SUB=$( dhcpcd -6 ${MY_INTERFACE} 2>&1 )
-            RC=$?
-            if [[ ${RC} -ne 0 ]]; then
-                "${GLI_D}" \
-                    --title "${GLI_TITLE}" \
-                    --backtitle "${GLI_BTITLE}" \
-                    --msgbox "Failed to get DHCPv6 lease for ${MY_INTERFACE}!
+        SUB=$( dhcpcd -6 ${MY_INTERFACE} 2>&1 )
+        RC=$?
+        if [[ ${RC} -ne 0 ]]; then
+            "${GLI_D}" \
+                --title "${GLI_TITLE}" \
+                --backtitle "${GLI_BTITLE}" \
+                --msgbox "Failed to get DHCPv6 lease for ${MY_INTERFACE}!
 
 ${SUB}
 " 0 0
-            ERROR=1
-            else
-                "${GLI_D}" \
-                    --title "${GLI_TITLE}" \
-                    --backtitle "${GLI_BTITLE}" \
-                    --msgbox "DHCPv6 lease for ${MY_INTERFACE} acquired successfully!"
-            fi
+        ERROR=1
+        else
+            "${GLI_D}" \
+                --title "${GLI_TITLE}" \
+                --backtitle "${GLI_BTITLE}" \
+                --msgbox "DHCPv6 lease for ${MY_INTERFACE} acquired successfully!"
+        fi
 
-            if [[ ${GLI_DEBUG} -eq 1 ]]; then
-                gli_debug "${_0}: dhcpcd -6 = ${RC}"
-                gli_debug "${_0}: dhcpcd -6 = ${SUB}"
-            fi
+        if [[ ${GLI_DEBUG} -eq 1 ]]; then
+            gli_debug "${_0}: dhcpcd -6 ${MY_INTERFACE} = ${RC}"
+            gli_debug "${_0}: dhcpcd -6 ${MY_INTERFACE} = ${SUB}"
+        fi
     ;;
 
     "Static IPv4")
         exec 3>&1
-        MY_IPV4=$( "${GLI_D}" \
+        MY_IPV4_CFG=$( "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --form 'IPv4 configuration' 0 0 0 \
@@ -142,20 +142,20 @@ ${SUB}
         fi
         exec 3>&-
 
-        MY_IPV4=( $(echo "${MY_IPV4}" | tr '\n' ' ' | awk '{
+        MY_IPV4_CFG=( $(echo "${MY_IPV4_CFG}" | tr '\n' ' ' | awk '{
             split($0, a, " ");
             printf "%s %s %s", a[1], a[2], a[3];
         }') )
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
-            gli_debug "${_0}: MY_IPV4 = [${MY_IPV4}]"
+            gli_debug "${_0}: MY_IPV4_CFG = ${MY_IPV4_CFG[@]}"
         fi
 
         MY_IPV4_COMMANDS=(
             "ifconfig ${MY_INTERFACE} down"
-            "ifconfig ${MY_INTERFACE} ${MY_IPV4[0]} netmask ${MY_IPV4[1]} up"
+            "ifconfig ${MY_INTERFACE} ${MY_IPV4_CFG[0]} netmask ${MY_IPV4_CFG[1]} up"
             "ip route del default"
-            "ip route add default via ${MY_IPV4[2]} dev ${MY_INTERFACE}"
+            "ip route add default via ${MY_IPV4_CFG[2]} dev ${MY_INTERFACE}"
         )
         LEN=${#MY_IPV4_COMMANDS[*]}
 
@@ -166,7 +166,7 @@ ${SUB}
                 "${GLI_D}" \
                     --title "${GLI_TITLE}" \
                     --backtitle "${GLI_BTITLE}" \
-                    --msgbox "\"${MY_IPV4_COMMANDS[$i]}\" ran without error!" 0 0
+                    --msgbox "\"${MY_IPV4_COMMANDS[$i]}\" OK!" 0 0
             else
                 "${GLI_D}" \
                     --title "${GLI_TITLE}" \
