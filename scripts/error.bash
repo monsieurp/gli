@@ -12,10 +12,4 @@ fi
 
 Would you like to restart
 GLI or exit now?" 0 0
-RC=$?
-
-if [[ $RC -eq 0 ]]; then
-    exec gli main
-else
-    kill $PPID
-fi
+exit $?
