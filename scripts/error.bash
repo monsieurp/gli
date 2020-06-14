@@ -11,4 +11,11 @@ fi
     --yesno "${ERROR}GLI encountered an error.
 
 Would you like to restart
-GLI or exit now?" 0 0 && exec gli main || exit 1
+GLI or exit now?" 0 0
+RC=$?
+
+if [[ $RC -eq 0 ]]; then
+    exec gli main
+else
+    kill $PPID
+fi

@@ -1,5 +1,3 @@
-trap 'gli error' SIGINT
-
 "${GLI_D}" \
     --title 'Welcome to GLI!' \
     --backtitle "${GLI_BTITLE}" \
@@ -25,8 +23,19 @@ esac
 # SSHd setup is optional.
 # Don't catch SIGINT here.
 trap true SIGINT
-gli sshd || exec $0
+
+if ! gli sshd; then
+    exec $0
+fi
+
+# Hostname is required;
+# Restart if configuration fails.
+if ! gli hostname; then
+    gli error 'Set hostname failed!'
+fi
 
 # Networking is required.
 # Restart if configuration fails.
-gli networking || gli error 'Network configuration failed!'
+if ! gli networking; then
+    gli error 'Network configuration failed!'
+fi
