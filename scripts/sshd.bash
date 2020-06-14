@@ -5,7 +5,7 @@ GLI_TITLE='GLI - Start sshd'
 ERROR=0
 
 "${GLI_D}" \
-    --title 'GLI - Start sshd' \
+    --title "${GLI_TITLE}" \
     --backtitle "${GLI_BTITLE}" \
     --yesno 'Would you like to start sshd for this installation?
 
