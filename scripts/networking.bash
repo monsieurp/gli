@@ -7,6 +7,7 @@ METHODS=$(cat << 'EOF'
 DHCPv4|Get IPv4 using dhcpcd
 DHCPv6|Get IPv6 using dhcpcd
 Static IPv4|Set up IPv4 manually
+Skip|Skip interface configuration
 EOF
 )
 
@@ -177,6 +178,10 @@ ${SUB}" 0 0
                 ERROR=1
             fi
         done
+    ;;
+
+    "Skip")
+        :
     ;;
 esac
 
