@@ -20,7 +20,7 @@ fi
 trap true SIGINT
 if ! gli sshd; then
     # Restart the installation.
-    exec $0
+    exec "$0"
 fi
 
 # Networking is required.
@@ -29,6 +29,6 @@ if ! gli networking; then
     if ! gli error 'Network configuration failed!'; then
         exit $?
     else
-        exec $0
+        exec "$0"
     fi
 fi

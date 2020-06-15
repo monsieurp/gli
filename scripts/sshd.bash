@@ -1,5 +1,5 @@
-. ${GLI_SCRIPTSDIR}/varfunc.bash
-_0=$(basename $0); _0=${_0%%.bash};
+. "${GLI_SCRIPTSDIR}"/varfunc.bash
+_0=$(basename "$0"); _0=${_0%%.bash};
 
 GLI_TITLE='GLI - Start sshd'
 ERROR=0

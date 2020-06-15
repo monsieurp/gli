@@ -1,5 +1,5 @@
-. ${GLI_SCRIPTSDIR}/varfunc.bash
-_0=$(basename $0); _0=${_0%%.bash};
+. "${GLI_SCRIPTSDIR}"/varfunc.bash
+_0=$(basename "$0"); _0=${_0%%.bash};
 
 GLI_TITLE='GLI - Network configuration'
 INTERFACES=()
@@ -12,16 +12,16 @@ EOF
 )
 
 for IFACE in /sys/class/net/*; do
-    IFACE=$(basename ${IFACE})
+    IFACE=$(basename "${IFACE}")
     [[ ${IFACE} =~ (lo|lo0) ]] && continue
     INTERFACES+=( "${IFACE}" "${IFACE}" )
 done
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: INTERFACES = ${INTERFACES[@]}"
+    gli_debug "${_0}: INTERFACES = ${INTERFACES[*]}"
 fi
 
-if [[ -z "${INTERFACES[@]}" ]]; then
+if [[ -z "${INTERFACES[*]}" ]]; then
     "${GLI_D}" \
         --title "${GLI_TITLE}" \
         --backtitle "${GLI_BTITLE}" \
@@ -56,7 +56,7 @@ EOF
 )
 
 exec 3>&1
-MY_METHOD=$( eval ${GLI_D_METHODS} 2>&1 >&3 )
+MY_METHOD=$( eval "${GLI_D_METHODS}" 2>&1 >&3 )
 exec 3>&-
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
@@ -74,7 +74,7 @@ case "${MY_METHOD}" in
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching \"dhcpcd -4\" on ${MY_INTERFACE} ..." 0 0
-        SUB=$( dhcpcd -4 ${MY_INTERFACE} 2>&1 )
+        SUB=$( dhcpcd -4 "${MY_INTERFACE}" 2>&1 )
         RC=$?
         if [[ ${RC} -ne 0 ]]; then
             "${GLI_D}" \
@@ -103,7 +103,7 @@ ${SUB}
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching \"dhcpcd -6\" on ${MY_INTERFACE} ..." 0 0
-        SUB=$( dhcpcd -6 ${MY_INTERFACE} 2>&1 )
+        SUB=$( dhcpcd -6 "${MY_INTERFACE}" 2>&1 )
         RC=$?
         if [[ ${RC} -ne 0 ]]; then
             "${GLI_D}" \
@@ -143,13 +143,14 @@ ${SUB}
         fi
         exec 3>&-
 
-        MY_IPV4_CFG=( $(echo "${MY_IPV4_CFG}" | tr '\n' ' ' | awk '{
-            split($0, a, " ");
-            printf "%s %s %s", a[1], a[2], a[3];
-        }') )
+        mapfile -t <<< "${MY_IPV4_CFG}"
+
+        MY_IPV4_CFG=( "${MAPFILE[@]}" )
+
+        unset MAPFILE
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
-            gli_debug "${_0}: MY_IPV4_CFG = ${MY_IPV4_CFG[@]}"
+            gli_debug "${_0}: MY_IPV4_CFG = ${MY_IPV4_CFG[*]}"
         fi
 
         MY_IPV4_COMMANDS=(
@@ -160,7 +161,7 @@ ${SUB}
         )
         LEN=${#MY_IPV4_COMMANDS[*]}
 
-        for (( i = 0; i <= $(( $LEN -1 )); i++ )); do
+        for (( i = 0; i <= $(( LEN -1 )); i++ )); do
             SUB=$( ${MY_IPV4_COMMANDS[$i]} 2>&1 )
             RC=$?
             if [[ $RC -eq 0 ]]; then
