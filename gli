@@ -32,7 +32,7 @@ shift $(( $OPTIND - 1 ))
 GLI_SCRIPT=${1:-main}; shift
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "main: reading [${GLI_SCRIPTSDIR}/${GLI_SCRIPT}]"
+    gli_debug "main: opening ${GLI_SCRIPTSDIR}/${GLI_SCRIPT}"
 fi
 
 exec "${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" "$@" 2> /dev/null
