@@ -19,17 +19,8 @@ fi
 # Don't catch SIGINT here.
 trap true SIGINT
 if ! gli sshd; then
+    # Restart the installation.
     exec $0
-fi
-
-# Hostname is required;
-# Restart if configuration fails.
-if ! gli hostname; then
-    if ! gli error 'Set hostname failed!'; then
-        exit $?
-    else
-        exec $0
-    fi
 fi
 
 # Networking is required.
