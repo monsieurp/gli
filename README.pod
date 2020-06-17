@@ -1,15 +1,4 @@
-=head1 NAME
-
-gli - the Gentoo Linux Installer
-
-=head1 SYNOPSYS
-
- gli [-d] [target]
-
- -d        Run GLI in debug mode (print info in /tmp/gli.log). 
- [target]  Optional. Default to the main target that unfolds the other targets.
-
-=head1 DESCRIPTION
+=head1 Introduction
 
 GLI is a text user interface that simplifies and automates the installation of
 Gentoo Linux as described in the Gentoo Linux handbook. The user is prompted
@@ -26,7 +15,14 @@ Installing Gentoo Linux is more like a chore then. That's where GLI steps into t
 
 GLI backend relies on bash(1) and dialog(1) for most operations.
 
-=head1 OPTIONS
+=head2 Usage
+
+ gli [-d] [target]
+
+ -d        Run GLI in debug mode (print info in /tmp/gli.log).
+ [target]  Optional. Default to the main target that unfolds the other targets.
+
+=head2 Options
 
 =over 2
 
@@ -48,11 +44,11 @@ GLI will run the sshd target and close after completion.
 
 =back
 
-=head1 NOTES
+=head2 Notes
 
 A lot of ideas have been taken from FreeBSD's bsdinstall(8).
 
-=head1 AUTHOR
+=head2 Author
 
 Patrice Clement E<lt>monsieurp@gentoo.orgE<gt>
 
