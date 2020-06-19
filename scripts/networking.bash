@@ -70,10 +70,12 @@ fi
 ERROR=0
 case "${MY_METHOD}" in
     "DHCPv4")
+        pkill -9 dhcpcd
         "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching \"dhcpcd -4\" on ${MY_INTERFACE} ..." 0 0
+        sleep 1
         SUB=$( dhcpcd -4 "${MY_INTERFACE}" 2>&1 )
         RC=$?
         if [[ ${RC} -ne 0 ]]; then
@@ -84,12 +86,13 @@ case "${MY_METHOD}" in
 
 ${SUB}
 " 0 0
-        ERROR=1
+            ERROR=1
         else
             "${GLI_D}" \
                 --title "${GLI_TITLE}" \
                 --backtitle "${GLI_BTITLE}" \
-                --msgbox "DHCPv4 lease for ${MY_INTERFACE} acquired successfully!"
+                --msgbox "DHCPv4 lease for ${MY_INTERFACE} acquired successfully!" \
+                0 0
         fi
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
@@ -99,10 +102,12 @@ ${SUB}
     ;;
 
     "DHCPv6")
+        pkill -9 dhcpcd
         "${GLI_D}" \
             --title "${GLI_TITLE}" \
             --backtitle "${GLI_BTITLE}" \
             --infobox "Launching \"dhcpcd -6\" on ${MY_INTERFACE} ..." 0 0
+        sleep 1
         SUB=$( dhcpcd -6 "${MY_INTERFACE}" 2>&1 )
         RC=$?
         if [[ ${RC} -ne 0 ]]; then
@@ -113,12 +118,13 @@ ${SUB}
 
 ${SUB}
 " 0 0
-        ERROR=1
+            ERROR=1
         else
             "${GLI_D}" \
                 --title "${GLI_TITLE}" \
                 --backtitle "${GLI_BTITLE}" \
-                --msgbox "DHCPv6 lease for ${MY_INTERFACE} acquired successfully!"
+                --msgbox "DHCPv6 lease for ${MY_INTERFACE} acquired successfully!" \
+                0 0
         fi
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
@@ -154,14 +160,15 @@ ${SUB}
         fi
 
         MY_IPV4_COMMANDS=(
+            "ip route del default"
             "ifconfig ${MY_INTERFACE} down"
             "ifconfig ${MY_INTERFACE} ${MY_IPV4_CFG[0]} netmask ${MY_IPV4_CFG[1]} up"
-            "ip route del default"
             "ip route add default via ${MY_IPV4_CFG[2]} dev ${MY_INTERFACE}"
         )
         LEN=${#MY_IPV4_COMMANDS[*]}
 
         for (( i = 0; i <= $(( LEN -1 )); i++ )); do
+            sleep 1
             SUB=$( ${MY_IPV4_COMMANDS[$i]} 2>&1 )
             RC=$?
             if [[ $RC -eq 0 ]]; then
@@ -185,5 +192,12 @@ ${SUB}" 0 0
         :
     ;;
 esac
+
+if [[ ${ERROR} -ne 1 ]]; then
+    "${GLI_D}" \
+        --title "${GLI_TITLE}" \
+        --backtitle "${GLI_BTITLE}" \
+        --msgbox "Network has been configured successfully!" 0 0
+fi
 
 exit ${ERROR}
