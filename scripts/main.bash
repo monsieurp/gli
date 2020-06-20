@@ -32,3 +32,13 @@ if ! gli networking; then
         exec "$0"
     fi
 fi
+
+# Disk partitioning is required.
+# Restart if configuration fails.
+if ! gli partitioning; then
+    if ! gli error 'Disk partitioning failed!'; then
+        exit $?
+    else
+        exec "$0"
+    fi
+fi
