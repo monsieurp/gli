@@ -3,7 +3,7 @@ _0=$(basename "$0"); _0=${_0%%.bash};
 
 GLI_TITLE='GLI - Network configuration'
 INTERFACES=()
-METHODS=$(cat << 'EOF'
+NET_METHODS=$(cat << 'EOF'
 DHCPv4|Get IPv4 using dhcpcd
 DHCPv6|Get IPv6 using dhcpcd
 Static IPv4|Set up IPv4 manually
@@ -46,29 +46,29 @@ if [[ -z ${MY_INTERFACE} ]]; then
     exit 1
 fi
 
-GLI_D_METHODS=$(cat << EOF
+GLI_D_NET_METHODS=$(cat << EOF
 ${GLI_D} \
     --title "${GLI_TITLE}" \
     --backtitle "${GLI_BTITLE}" \
     --menu "How do you want to configure ${MY_INTERFACE}?" 0 0 0 \
-    $(gli_fmt_d_menu "${METHODS}")
+    $(gli_fmt_d_menu "${NET_METHODS}")
 EOF
 )
 
 exec 3>&1
-MY_METHOD=$( eval "${GLI_D_METHODS}" 2>&1 >&3 )
+MY_NET_METHOD=$( eval "${GLI_D_NET_METHODS}" 2>&1 >&3 )
 exec 3>&-
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: MY_METHOD = ${MY_METHOD}"
+    gli_debug "${_0}: MY_NET_METHOD = ${MY_NET_METHOD}"
 fi
 
-if [[ -z ${MY_METHOD} ]]; then
+if [[ -z ${MY_NET_METHOD} ]]; then
     exit 1
 fi
 
 ERROR=0
-case "${MY_METHOD}" in
+case "${MY_NET_METHOD}" in
     "DHCPv4")
         pkill -9 dhcpcd
         "${GLI_D}" \
