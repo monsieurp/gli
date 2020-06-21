@@ -18,7 +18,7 @@ ${GLI_D} \
     --title "${GLI_TITLE}" \
     --backtitle "${GLI_BTITLE}" \
     --menu "How do you want to partition your disk?" 0 0 0 \
-    $(gli_fmt_d_menu "${PART_METHODS}")
+    $(gli::fmt::menu "${PART_METHODS}")
 EOF
 )
 
@@ -41,7 +41,7 @@ ${GLI_D} \
     --title "${GLI_TITLE}" \
     --backtitle "${GLI_BTITLE}" \
     --menu "Please select a disk" 0 0 0 \
-    $(gli_fmt_d_menu "${DISKS}")
+    $(gli::fmt::menu "${DISKS}")
 EOF
 )
 

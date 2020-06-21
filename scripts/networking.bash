@@ -18,7 +18,7 @@ for IFACE in /sys/class/net/*; do
 done
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: INTERFACES = ${INTERFACES[*]}"
+    gli::debug "${_0}: INTERFACES = ${INTERFACES[*]}"
 fi
 
 if [[ -z "${INTERFACES[*]}" ]]; then
@@ -39,7 +39,7 @@ MY_INTERFACE=$( echo "${INTERFACES[@]}" | xargs \
 exec 3>&-
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: MY_INTERFACE = ${MY_INTERFACE}"
+    gli::debug "${_0}: MY_INTERFACE = ${MY_INTERFACE}"
 fi
 
 if [[ -z ${MY_INTERFACE} ]]; then
@@ -51,7 +51,7 @@ ${GLI_D} \
     --title "${GLI_TITLE}" \
     --backtitle "${GLI_BTITLE}" \
     --menu "How do you want to configure ${MY_INTERFACE}?" 0 0 0 \
-    $(gli_fmt_d_menu "${NET_METHODS}")
+    $(gli::fmt::menu "${NET_METHODS}")
 EOF
 )
 
@@ -60,7 +60,7 @@ MY_NET_METHOD=$( eval "${GLI_D_NET_METHODS}" 2>&1 >&3 )
 exec 3>&-
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "${_0}: MY_NET_METHOD = ${MY_NET_METHOD}"
+    gli::debug "${_0}: MY_NET_METHOD = ${MY_NET_METHOD}"
 fi
 
 if [[ -z ${MY_NET_METHOD} ]]; then
@@ -96,8 +96,8 @@ ${SUB}
         fi
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
-            gli_debug "${_0}: dhcpcd -4 ${MY_INTERFACE} = ${RC}"
-            gli_debug "${_0}: dhcpcd -4 ${MY_INTERFACE} = ${SUB}"
+            gli::debug "${_0}: dhcpcd -4 ${MY_INTERFACE} = ${RC}"
+            gli::debug "${_0}: dhcpcd -4 ${MY_INTERFACE} = ${SUB}"
         fi
     ;;
 
@@ -128,8 +128,8 @@ ${SUB}
         fi
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
-            gli_debug "${_0}: dhcpcd -6 ${MY_INTERFACE} = ${RC}"
-            gli_debug "${_0}: dhcpcd -6 ${MY_INTERFACE} = ${SUB}"
+            gli::debug "${_0}: dhcpcd -6 ${MY_INTERFACE} = ${RC}"
+            gli::debug "${_0}: dhcpcd -6 ${MY_INTERFACE} = ${SUB}"
         fi
     ;;
 
@@ -156,7 +156,7 @@ ${SUB}
         unset MAPFILE
 
         if [[ ${GLI_DEBUG} -eq 1 ]]; then
-            gli_debug "${_0}: MY_IPV4_CFG = ${MY_IPV4_CFG[*]}"
+            gli::debug "${_0}: MY_IPV4_CFG = ${MY_IPV4_CFG[*]}"
         fi
 
         MY_IPV4_COMMANDS=(

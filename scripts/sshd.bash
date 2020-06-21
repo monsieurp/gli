@@ -20,8 +20,8 @@ if [[ ${RC} -eq 1 ]]; then
     RC=$?
 
     if [[ ${GLI_DEBUG} -eq 1 ]]; then
-        gli_debug "${_0}: rc-service sshd start = ${RC}"
-        gli_debug "${_0}: rc-service sshd start = ${OUTPUT}"
+        gli::debug "${_0}: rc-service sshd start = ${RC}"
+        gli::debug "${_0}: rc-service sshd start = ${OUTPUT}"
     fi
 
     if [[ ${RC} -eq 0 ]]; then

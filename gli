@@ -14,7 +14,7 @@ while getopts ":d" opt; do
     case ${opt} in
         d)
             export GLI_DEBUG=1
-            gli_debug "GLI started!"
+            gli::debug "GLI started!"
         ;;
         *)
             echo "GLI: the Gentoo Linux Installer.
@@ -33,7 +33,7 @@ shift $(( OPTIND - 1 ))
 GLI_SCRIPT=${1:-main}; shift
 
 if [[ ${GLI_DEBUG} -eq 1 ]]; then
-    gli_debug "main: opening ${GLI_SCRIPTSDIR}/${GLI_SCRIPT}"
+    gli::debug "main: opening ${GLI_SCRIPTSDIR}/${GLI_SCRIPT}"
 fi
 
 exec "${GLI_SCRIPTSDIR}/${GLI_SCRIPT}.bash" "$@" 2> /dev/null

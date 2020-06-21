@@ -9,7 +9,7 @@
 export GLI_D GLI_BTITLE GLI_DEBUG GLI_LOG_FILE GLI_MOUNT
 
 # Helper function to print debug messages into log file.
-function gli_debug
+function gli::debug
 {
     local timestamp
     timestamp=$(date '+%d/%m/%y|%H:%M:%S')
@@ -17,7 +17,7 @@ function gli_debug
 }
 
 # Format dialog --menu arguments.
-function gli_fmt_d_menu
+function gli::fmt::menu
 {
     local args out
     args=$1
