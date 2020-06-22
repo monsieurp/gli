@@ -13,36 +13,7 @@ fun and a great learning experience. When you've done it for the umpteenth time
 and know the process inside out, there isn't really much to learn anymore.
 Installing Gentoo Linux is more like a chore then. That's where GLI steps into the scene.
 
-GLI backend relies on bash(1) and dialog(1) for most operations.
-
-=head2 Usage
-
- gli [-d] [target]
-
- -d        Run GLI in debug mode (print info in /tmp/gli.log).
- [target]  Optional. Default to the main target that unfolds the other targets.
-
-=head2 Options
-
-=over 2
-
-=item B<-d>
-
-Turn on debug mode and increase verbosity. GLI will write a lot of information
-in /tmp/gli.log. Keep an eye out on this file with tail -f if you want to see
-what GLI is doing in the background.
-
-=item B<[target]>
-
-Optional. Default to "main", the target that runs the other targets. A target
-is a bash script called by GLI with exec(1). If you wish to run a particular
-target, run GLI like so:
-
-  $ gli sshd
-
-GLI will run the sshd target and close after completion.
-
-=back
+GLI is built with Python and the urwid library.
 
 =head2 Notes
 
