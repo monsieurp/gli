@@ -14,6 +14,7 @@ PALETTE = [
     ('exit',        'white',    'dark red')
 ]
 
+
 SFILL = '▞'
 
 
@@ -66,8 +67,11 @@ Would you like to begin the installation with GLI?"""
 class SSHDialog(urwid.WidgetWrap):
     dialog_text = """Would you like to start the SSH daemon?
 
-sshd can be started to grant other users access
-to this machine whilst performing the installation."""
+sshd can be started to grant users access
+to this machine during the installation."""
+
+    footer = 'Yes: launch command "rc-service sshd start" in background. \
+No: skip.'
 
     def __init__(self, gli_widget):
         self.gli_widget = gli_widget
@@ -100,7 +104,7 @@ to this machine whilst performing the installation."""
 
     def handle_input(self, button):
         if button.label == "Yes":
-            # TODO: run "rc-service sshd start"
+            # TODO: run "rc-service sshd start".
             raise urwid.ExitMainLoop()
         elif button.label == "No":
             # TODO: move to next dialog.
@@ -116,6 +120,7 @@ class GLI(urwid.WidgetPlaceholder):
         urwid.Text('Press ESC/Q to quit GLI.', align='left'),
         'footer'
     )
+
     def __init__(self):
         self.dialog = IntroDialog(self)
         super(GLI, self).__init__(
@@ -134,10 +139,19 @@ class GLI(urwid.WidgetPlaceholder):
 
     def cycle_dialog(self, dialog):
         self.dialog = dialog
+
+        if hasattr(self.dialog, 'footer'):
+            foot = urwid.AttrMap(
+                urwid.Text(self.dialog.footer, align='left'),
+                'footer'
+            )
+        else:
+            foot = self.footer
+
         self.original_widget = urwid.Frame(
             header=self.header,
             body=self.dialog._w,
-            footer=self.footer
+            footer=foot
         )
 
     def quit_popup(self, text = ['']):
