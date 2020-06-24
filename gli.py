@@ -58,9 +58,10 @@ Would you like to begin the installation with GLI?"""
         self._w = content_frame
 
 
-class GLI(urwid.WidgetPlaceholder):
+class CycleWidget(urwid.WidgetPlaceholder):
     def __init__(self, dialog):
-        super(GLI, self).__init__(
+        self.cur_dialog = dialog
+        super(CycleWidget, self).__init__(
             urwid.Frame(
                 body=dialog._w,
                 header=dialog.header
@@ -68,15 +69,16 @@ class GLI(urwid.WidgetPlaceholder):
         )
 
     def cycle_dialog(self, dialog):
+        self.cur_dialog = dialog
         self.original_widget = urwid.Frame(
             body=dialog._w,
             header=dialog.header
         )
 
 
-class Main:
+class GLI:
     def __init__(self):
-        self.view = GLI(IntroDialog())
+        self.view = CycleWidget(IntroDialog())
         self.loop = urwid.MainLoop(self.view, PALETTE,
             unhandled_input=self.unhandled_input)
         self.loop.run()
@@ -87,4 +89,4 @@ class Main:
 
 
 if __name__ == '__main__':
-    Main()
+    GLI()
