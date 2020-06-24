@@ -3,15 +3,15 @@ import urwid
 
 
 PALETTE = [
-    ('header',      'white',    'dark blue'),
-    ('footer',      'white',    'black'),
-    ('bgcolor',     'black',    'dark blue'),
-    ('wcolor',      'black',    'light gray'),
-    ('selectable',  'white',    'dark blue'),
-    ('focus',       'black',    'dark blue'),
-    ('esel',        'white',    'dark red'),
-    ('efoc',        'black',    'dark red'),
-    ('exit',        'white',    'dark red')
+    ('header', 'white', 'dark blue'),
+    ('footer', 'white', 'black'),
+    ('bgcolor', 'black', 'dark blue'),
+    ('wcolor', 'black', 'light gray'),
+    ('selectable', 'white', 'dark blue'),
+    ('focus', 'black', 'dark blue'),
+    ('esel', 'white', 'dark red'),
+    ('efoc', 'black', 'dark red'),
+    ('exit', 'white', 'dark red')
 ]
 
 
@@ -33,18 +33,28 @@ Would you like to begin the installation with GLI?"""
 
         content_frame = urwid.Frame(body=None)
 
-        yes = urwid.AttrMap(urwid.Button('Yes', self.handle_input), 'focus', 'selectable')
-        no = urwid.AttrMap(urwid.Button('No', self.handle_input), 'focus', 'selectable')
+        yes = urwid.AttrMap(
+            urwid.Button(
+                'Yes',
+                self.handle_input),
+            'focus',
+            'selectable')
+        no = urwid.AttrMap(
+            urwid.Button(
+                'No',
+                self.handle_input),
+            'focus',
+            'selectable')
 
         buttons = urwid.GridFlow([yes, no], 10, 3, 1, 'center')
 
         content = urwid.Text(self.dialog_text)
         content = urwid.Padding(content,
-            align='center', width='pack'
-        )
+                                align='center', width='pack'
+                                )
         content = urwid.Pile([content, urwid.Divider(), buttons], focus_item=2)
         content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
-            bottom=0), 'wcolor')
+                                             bottom=0), 'wcolor')
         content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
         content = urwid.Overlay(
             content,
@@ -78,18 +88,28 @@ No: skip.'
 
         content_frame = urwid.Frame(body=None)
 
-        yes = urwid.AttrMap(urwid.Button('Yes', self.handle_input), 'focus', 'selectable')
-        no = urwid.AttrMap(urwid.Button('No', self.handle_input), 'focus', 'selectable')
+        yes = urwid.AttrMap(
+            urwid.Button(
+                'Yes',
+                self.handle_input),
+            'focus',
+            'selectable')
+        no = urwid.AttrMap(
+            urwid.Button(
+                'No',
+                self.handle_input),
+            'focus',
+            'selectable')
 
         buttons = urwid.GridFlow([no, yes], 10, 3, 1, 'center')
 
         content = urwid.Text(self.dialog_text)
         content = urwid.Padding(content,
-            align='center', width='pack'
-        )
+                                align='center', width='pack'
+                                )
         content = urwid.Pile([content, urwid.Divider(), buttons], focus_item=2)
         content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
-            bottom=0), 'wcolor')
+                                             bottom=0), 'wcolor')
         content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
         content = urwid.Overlay(
             content,
@@ -154,7 +174,7 @@ class GLI(urwid.WidgetPlaceholder):
             footer=foot
         )
 
-    def quit_popup(self, text = ['']):
+    def quit_popup(self, text=['']):
         body_text = urwid.Text(text, align='center')
         body_filler = urwid.Filler(body_text, valign='middle')
         body_padding = urwid.Padding(
