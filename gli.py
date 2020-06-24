@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import subprocess
+import shlex
 import urwid
 
 
 PALETTE = [
-    ('header', 'white', 'dark blue'),
+    ('header', 'white', 'black'),
     ('footer', 'white', 'black'),
     ('bgcolor', 'black', 'dark blue'),
     ('wcolor', 'black', 'light gray'),
@@ -19,7 +21,7 @@ SFILL = '▞'
 
 
 class IntroDialog(urwid.WidgetWrap):
-    dialog_text = """Welcome to the Gentoo Linux Installer!
+    text = """Welcome to the Gentoo Linux Installer!
 
 GLI simplifies the installation of Gentoo Linux as described
 in the Gentoo Linux handbook.
@@ -28,8 +30,13 @@ See https://wiki.gentoo.org/wiki/Handbook for further information.
 
 Would you like to begin the installation with GLI?"""
 
-    def __init__(self, gli_widget):
+    def __init__(self, gli_widget, *args, **kw):
+        super(IntroDialog, self).__init__(gli_widget, *args, **kw)
         self.gli_widget = gli_widget
+
+        # Store user choices made throughout the installer.
+        # Initialise this value here in case the user restarts GLI.
+        self.gli_widget.user_choices = {}
 
         content_frame = urwid.Frame(body=None)
 
@@ -48,7 +55,7 @@ Would you like to begin the installation with GLI?"""
 
         buttons = urwid.GridFlow([yes, no], 10, 3, 1, 'center')
 
-        content = urwid.Text(self.dialog_text)
+        content = urwid.Text(self.text)
         content = urwid.Padding(content,
                                 align='center', width='pack'
                                 )
@@ -69,21 +76,21 @@ Would you like to begin the installation with GLI?"""
 
     def handle_input(self, button):
         if button.label == "Yes":
-            self.gli_widget.cycle_dialog(SSHDialog(self.gli_widget))
+            self.gli_widget.switch_dialog(SSHDialog(self.gli_widget))
         elif button.label == "No":
             raise urwid.ExitMainLoop()
 
 
 class SSHDialog(urwid.WidgetWrap):
-    dialog_text = """Would you like to start the SSH daemon?
+    text = """Would you like to start the SSH daemon?
 
 sshd can be started to grant users access
 to this machine during the installation."""
-
     footer = 'Yes: launch command "rc-service sshd start" in background. \
 No: skip.'
 
-    def __init__(self, gli_widget):
+    def __init__(self, gli_widget, *args, **kw):
+        super(SSHDialog, self).__init__(gli_widget, *args, **kw)
         self.gli_widget = gli_widget
 
         content_frame = urwid.Frame(body=None)
@@ -103,7 +110,7 @@ No: skip.'
 
         buttons = urwid.GridFlow([no, yes], 10, 3, 1, 'center')
 
-        content = urwid.Text(self.dialog_text)
+        content = urwid.Text(self.text)
         content = urwid.Padding(content,
                                 align='center', width='pack'
                                 )
@@ -124,11 +131,99 @@ No: skip.'
 
     def handle_input(self, button):
         if button.label == "Yes":
-            # TODO: run "rc-service sshd start".
+            self.gli_widget.user_choices['start_sshd'] = 'yes'
             raise urwid.ExitMainLoop()
         elif button.label == "No":
-            # TODO: move to next dialog.
-            self.gli_widget.cycle_dialog(IntroDialog(self.gli_widget))
+            self.gli_widget.user_choices['start_sshd'] = 'no'
+            self.gli_widget.switch_dialog(DiskSelectionDialog(self.gli_widget))
+
+
+class DiskSelectionDialog(urwid.WidgetWrap):
+    text = "Please select a disk to partition"
+    footer = 'Press [R/r] to detect disks again.'
+
+    def __init__(self, gli_widget, *args, **kw):
+        super(DiskSelectionDialog, self).__init__(gli_widget, *args, **kw)
+        self.gli_widget = gli_widget
+        self.detect_disks()
+        self.draw()
+
+    def draw(self):
+        content_frame = urwid.Frame(body=None)
+
+        ok = urwid.AttrMap(
+            urwid.Button(
+                'OK',
+                self.handle_input),
+            'focus',
+            'selectable')
+
+        ok = urwid.GridFlow([ok], 10, 3, 1, 'center')
+
+        rbgroup = []
+        buttons = [
+            urwid.AttrMap(
+                urwid.RadioButton(rbgroup, d),
+                'focus', 'selectable'
+            ) for d in self.disks
+        ]
+        self.rbuttons = buttons
+
+        buttons = urwid.Pile(buttons, focus_item=1)
+
+        content = urwid.Text(self.text)
+        content = urwid.Padding(content,
+                                align='center', width='pack'
+                                )
+
+        content = urwid.Pile(
+            [content, urwid.Divider(), buttons, urwid.Divider(), ok],
+            focus_item=2)
+        content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
+                                             bottom=0), 'wcolor')
+        content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
+
+        content = urwid.Overlay(
+            content,
+            urwid.AttrMap(urwid.SolidFill(SFILL), 'bgcolor'),
+            align='center', valign='middle',
+            width=('relative', 40),
+            height=('relative', 30)
+        )
+
+        content_frame.body = content
+        self._w = content_frame
+
+    def handle_input(self, button):
+        if button.label == "OK":
+            for rbutton in self.rbuttons:
+                _rbutton = rbutton.base_widget
+                if _rbutton.get_state():
+                    label = _rbutton.get_label().split(' ¬ ')[0]
+                    self.gli_widget.user_choices['disk'] = label
+                    import sys
+                    sys.exit(self.gli_widget.user_choices)
+
+    def detect_disks(self):
+        self.disks = []
+        lsblk = shlex.split('lsblk -r -n -i -o KNAME,TYPE,SIZE,MODEL')
+        process = subprocess.Popen(lsblk, stdout=subprocess.PIPE)
+        stdout = process.communicate()[0].decode('utf-8').split('\n')
+        disks = [line for line in stdout if 'disk' in line]
+        for disk in disks:
+            name, _, size, model = disk.split(' ')
+            name = '/dev/' + name
+            model = model.replace('\\x20', ' ')
+            self.disks.append(f'{name} ¬ {model} ¬ {size}')
+
+    def my_keypress(self, key):
+        if key in ('R', 'r'):
+            # Detect disks again.
+            self.detect_disks()
+            # Update dialog with (maybe) newly detected disks.
+            self.draw()
+            # Switch to self to redraw screen.
+            self.gli_widget.switch_dialog(self)
 
 
 class GLI(urwid.WidgetPlaceholder):
@@ -137,12 +232,13 @@ class GLI(urwid.WidgetPlaceholder):
         'header'
     )
     footer = urwid.AttrMap(
-        urwid.Text('Press ESC/Q to quit GLI.', align='left'),
+        urwid.Text('Hit [ESC/Q] at any time to quit GLI or restart from here.', align='left'),
         'footer'
     )
 
     def __init__(self):
         self.dialog = IntroDialog(self)
+
         super(GLI, self).__init__(
             urwid.Frame(
                 header=self.header,
@@ -153,11 +249,11 @@ class GLI(urwid.WidgetPlaceholder):
 
         self.loop = urwid.MainLoop(
             self, PALETTE,
-            unhandled_input=self.handle_input
+            unhandled_input=self.my_keypress
         )
         self.loop.run()
 
-    def cycle_dialog(self, dialog):
+    def switch_dialog(self, dialog):
         self.dialog = dialog
 
         if hasattr(self.dialog, 'footer'):
@@ -221,11 +317,15 @@ class GLI(urwid.WidgetPlaceholder):
         elif button.label == 'Quit':
             raise urwid.ExitMainLoop()
         elif button.label == 'Restart':
-            self.cycle_dialog(IntroDialog(self))
+            self.switch_dialog(IntroDialog(self))
             self.loop.widget = self
             self.loop.draw_screen()
 
-    def handle_input(self, key):
+    def my_keypress(self, key):
+        # Pass off key management to current dialog if it wishes.
+        if hasattr(self.dialog, 'my_keypress'):
+            self.dialog.my_keypress(key)
+
         if key in ('esc', 'ESC', 'q', 'Q'):
             self.quit_popup(
                 [
