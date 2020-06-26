@@ -30,13 +30,13 @@ See https://wiki.gentoo.org/wiki/Handbook for further information.
 
 Would you like to begin the installation with GLI?"""
 
-    def __init__(self, gli_widget, *args, **kw):
-        super(IntroDialog, self).__init__(gli_widget, *args, **kw)
-        self.gli_widget = gli_widget
+    def __init__(self, top_widget, *args, **kw):
+        super(IntroDialog, self).__init__(top_widget, *args, **kw)
+        self.top_widget = top_widget
 
         # Store user choices made throughout the installer.
         # Initialise this value here in case the user restarts GLI.
-        self.gli_widget.user_choices = {}
+        self.top_widget.user_choices = {}
 
         content_frame = urwid.Frame(body=None)
 
@@ -76,7 +76,7 @@ Would you like to begin the installation with GLI?"""
 
     def handle_input(self, button):
         if button.label == "Yes":
-            self.gli_widget.switch_dialog(SSHDialog(self.gli_widget))
+            self.top_widget.switch_dialog(SSHDialog(self.top_widget))
         elif button.label == "No":
             raise urwid.ExitMainLoop()
 
@@ -89,9 +89,9 @@ to this machine during the installation."""
     footer = 'Yes: launch command "rc-service sshd start" in background. \
 No: skip.'
 
-    def __init__(self, gli_widget, *args, **kw):
-        super(SSHDialog, self).__init__(gli_widget, *args, **kw)
-        self.gli_widget = gli_widget
+    def __init__(self, top_widget, *args, **kw):
+        super(SSHDialog, self).__init__(top_widget, *args, **kw)
+        self.top_widget = top_widget
 
         content_frame = urwid.Frame(body=None)
 
@@ -131,20 +131,20 @@ No: skip.'
 
     def handle_input(self, button):
         if button.label == "Yes":
-            self.gli_widget.user_choices['start_sshd'] = 'yes'
+            self.top_widget.user_choices['start_sshd'] = 'yes'
             raise urwid.ExitMainLoop()
         elif button.label == "No":
-            self.gli_widget.user_choices['start_sshd'] = 'no'
-            self.gli_widget.switch_dialog(DiskSelectionDialog(self.gli_widget))
+            self.top_widget.user_choices['start_sshd'] = 'no'
+            self.top_widget.switch_dialog(DiskSelectionDialog(self.top_widget))
 
 
 class DiskSelectionDialog(urwid.WidgetWrap):
-    text = "Please select a disk to partition"
+    text = 'Please select a disk to partition'
     footer = 'Press [R/r] to detect disks again.'
 
-    def __init__(self, gli_widget, *args, **kw):
-        super(DiskSelectionDialog, self).__init__(gli_widget, *args, **kw)
-        self.gli_widget = gli_widget
+    def __init__(self, top_widget, *args, **kw):
+        super(DiskSelectionDialog, self).__init__(top_widget, *args, **kw)
+        self.top_widget = top_widget
         self.detect_disks()
         self.draw()
 
@@ -200,9 +200,10 @@ class DiskSelectionDialog(urwid.WidgetWrap):
                 _rbutton = rbutton.base_widget
                 if _rbutton.get_state():
                     label = _rbutton.get_label().split(' ¬ ')[0]
-                    self.gli_widget.user_choices['disk'] = label
-                    import sys
-                    sys.exit(self.gli_widget.user_choices)
+                    self.top_widget.user_choices['disk'] = label
+                    self.top_widget.switch_dialog(
+                        DiskPartitioningMethodDialog(self.top_widget)
+                    )
 
     def detect_disks(self):
         self.disks = []
