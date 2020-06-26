@@ -393,14 +393,15 @@ class GLI(urwid.WidgetPlaceholder):
 
     def switch_dialog(self, dialog):
         self.dialog = dialog
+        self.draw_dialog()
 
+    def draw_dialog(self):
+        foot = self.footer
         if hasattr(self.dialog, 'footer'):
             foot = urwid.AttrMap(
                 urwid.Text(self.dialog.footer, align='left'),
                 'footer'
             )
-        else:
-            foot = self.footer
 
         self.original_widget = urwid.Frame(
             header=self.header,
