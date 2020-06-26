@@ -223,8 +223,145 @@ class DiskSelectionDialog(urwid.WidgetWrap):
             self.detect_disks()
             # Update dialog with (maybe) newly detected disks.
             self.draw()
-            # Switch to self to redraw screen.
-            self.gli_widget.switch_dialog(self)
+            # Redraw dialog.
+            self.top_widget.draw_dialog()
+
+
+class DiskPartitioningMethodDialog(urwid.WidgetWrap):
+    class ToolTipPile(urwid.Pile):
+        def __init__(self, buttons, dialog, *args, **kw):
+            super().__init__(buttons, **kw)
+            self.dialog = dialog
+            self.dialog.idx = self.focus_position
+
+            self.set_tooltip_text(
+                self.dialog.footer_infotip_text[self.dialog.idx]
+            )
+
+        def set_tooltip_text(self, text):
+            self.dialog.top_widget.original_widget.footer.base_widget.set_text(
+                text
+            )
+
+        def keypress(self, size, key):
+            if key in ('up', 'down'):
+                if key == 'up':
+                    self.dialog.idx -= 1
+                elif key == 'down':
+                    self.dialog.idx += 1
+
+                if self.dialog.idx > 4:
+                    tooltip = 'Validate your choice.'
+                elif self.dialog.idx < 0:
+                    self.dialog.idx = 0
+
+                if self.dialog.idx >= 0 and self.dialog.idx <= 4:
+                    tooltip = self.dialog.footer_infotip_text[self.dialog.idx]
+
+                self.set_tooltip_text(tooltip)
+            return super().keypress(size, key)
+
+    class ToolTipOkButton(urwid.Button):
+        def __init__(self, label, dialog, *args, **kw):
+            super().__init__(label, *args, **kw)
+            self.dialog = dialog
+
+        def set_tooltip_text(self, text):
+            self.dialog.top_widget.original_widget.footer.base_widget.set_text(
+                text
+            )
+
+        def keypress(self, size, key):
+            if key == 'up':
+                self.dialog.idx -= 1
+                tooltip = self.dialog.footer_infotip_text[self.dialog.idx]
+                self.set_tooltip_text(tooltip)
+
+            return super().keypress(size, key)
+
+    text = 'Please select a partitioning method'
+    footer_infotip_label = [
+        'Guided(ext4)',
+        'Guided(XFS)',
+        'Guided(JFS)',
+        'Manual',
+        'Shell'
+    ]
+    footer_infotip_text = [
+        'Guided disk partitioning using ext4.',
+        'Guided disk partitioning using XFS.',
+        'Guided disk partitioning using JFS.',
+        'Manual disk partitioning with GLI.',
+        'Open a shell.'
+    ]
+    idx = 0
+    footer = footer_infotip_text[idx]
+
+    def __init__(self, top_widget, *args, **kw):
+        super(DiskPartitioningMethodDialog, self).__init__(
+                top_widget, *args, **kw
+        )
+        self.top_widget = top_widget
+        self.draw()
+
+    def draw(self):
+        content_frame = urwid.Frame(body=None)
+
+        ok = urwid.AttrMap(
+            DiskPartitioningMethodDialog.ToolTipOkButton(
+                'OK',
+                self,
+                self.handle_input),
+            'focus',
+            'selectable')
+
+        ok = urwid.GridFlow([ok], 10, 3, 1, 'center')
+
+        rbgroup = []
+        buttons = [
+            urwid.AttrMap(
+                urwid.RadioButton(rbgroup, d),
+                'focus', 'selectable'
+            ) for d in self.footer_infotip_label
+        ]
+        self.rbuttons = buttons
+
+        buttons = DiskPartitioningMethodDialog.ToolTipPile(
+            buttons, self, focus_item=0
+        )
+
+        content = urwid.Text(self.text)
+        content = urwid.Padding(content,
+                                align='center', width='pack'
+                                )
+
+        content = urwid.Pile(
+            [content, urwid.Divider(), buttons, urwid.Divider(), ok],
+            focus_item=2)
+        content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
+                                             bottom=0), 'wcolor')
+        content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
+
+        content = urwid.Overlay(
+            content,
+            urwid.AttrMap(urwid.SolidFill(SFILL), 'bgcolor'),
+            align='center', valign='middle',
+            width=('relative', 40),
+            height=('relative', 40)
+        )
+
+        content_frame.body = content
+        self._w = content_frame
+
+    def handle_input(self, button):
+        if button.label == "OK":
+            for rbutton in self.rbuttons:
+                _rbutton = rbutton.base_widget
+                if _rbutton.get_state():
+                    label = _rbutton.get_label()
+                    self.top_widget.user_choices['pmethod'] = label
+                    import sys
+                    sys.exit(self.top_widget.user_choices)
 
 
 class GLI(urwid.WidgetPlaceholder):
