@@ -169,7 +169,7 @@ class DiskSelectionDialog(urwid.WidgetWrap):
         ]
         self.rbuttons = buttons
 
-        buttons = urwid.Pile(buttons, focus_item=1)
+        buttons = urwid.Pile(buttons, focus_item=0)
 
         content = urwid.Text(self.text)
         content = urwid.Padding(content,
