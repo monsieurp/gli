@@ -96,6 +96,10 @@ No: skip.'
 
         content_frame = urwid.Frame(body=None)
 
+        top = urwid.Text(self.text)
+        top = urwid.Padding(top, align='left', width='pack')
+        top = urwid.AttrMap(urwid.Filler(top, valign='top'), 'wcolor')
+
         yes = urwid.AttrMap(
             urwid.Button(
                 'Yes',
@@ -111,20 +115,18 @@ No: skip.'
 
         buttons = urwid.GridFlow([no, yes], 10, 3, 1, 'center')
 
-        content = urwid.Text(self.text)
-        content = urwid.Padding(content,
-                                align='center', width='pack'
-                                )
-        content = urwid.Pile([content, urwid.Divider(), buttons], focus_item=2)
-        content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
-                                             bottom=0), 'wcolor')
+        bottom = urwid.Padding(buttons, align='right', width='pack' )
+        bottom = urwid.AttrMap(urwid.Filler(bottom, valign='bottom'), 'wcolor')
+
+        content = urwid.Pile([top, bottom], focus_item=1)
         content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
+
         content = urwid.Overlay(
             content,
             urwid.AttrMap(urwid.SolidFill(SFILL), 'bgcolor'),
             align='center', valign='middle',
-            width=('relative', 40),
-            height=('relative', 30)
+            width=50,
+            height=10
         )
         content_frame.body = content
 
