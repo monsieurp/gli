@@ -87,8 +87,8 @@ class SSHDialog(urwid.WidgetWrap):
 
 sshd can be started to grant users access
 to this machine during the installation."""
-    footer = 'Yes: launch command "rc-service sshd start" in background. \
-No: skip.'
+    footer = """Yes: launch command "rc-service sshd start" in background.
+No: skip this step."""
 
     def __init__(self, top_widget, *args, **kw):
         super(SSHDialog, self).__init__(top_widget, *args, **kw)
@@ -143,7 +143,7 @@ No: skip.'
 
 class DiskSelectionDialog(urwid.WidgetWrap):
     text = 'Please select a disk to partition'
-    footer = 'Press [R/r] to detect disks again.'
+    footer = '[R/r] Detect disks again.'
 
     def __init__(self, top_widget, *args, **kw):
         super(DiskSelectionDialog, self).__init__(top_widget, *args, **kw)
@@ -373,7 +373,7 @@ class GLI(urwid.WidgetPlaceholder):
         'header'
     )
     footer = urwid.AttrMap(
-        urwid.Text('Hit [ESC/Q] at any time to quit GLI or restart from here.', align='left'),
+        urwid.Text('[ESC/Q] Quit GLI or restart from here.', align='left'),
         'footer'
     )
 
