@@ -23,8 +23,7 @@ SFILL = '▞'
 class IntroDialog(urwid.WidgetWrap):
     text = """Welcome to the Gentoo Linux Installer!
 
-GLI simplifies the installation of Gentoo Linux as described
-in the Gentoo Linux handbook.
+GLI simplifies the installation of Gentoo Linux as described in the Gentoo Linux handbook.
 
 See https://wiki.gentoo.org/wiki/Handbook for further information.
 
@@ -39,6 +38,10 @@ Would you like to begin the installation with GLI?"""
         self.top_widget.user_choices = {}
 
         content_frame = urwid.Frame(body=None)
+
+        top = urwid.Text(self.text)
+        top = urwid.Padding(top, align='left', width='pack')
+        top = urwid.AttrMap(urwid.Filler(top, valign='top'), 'wcolor')
 
         yes = urwid.AttrMap(
             urwid.Button(
@@ -55,20 +58,18 @@ Would you like to begin the installation with GLI?"""
 
         buttons = urwid.GridFlow([yes, no], 10, 3, 1, 'center')
 
-        content = urwid.Text(self.text)
-        content = urwid.Padding(content,
-                                align='center', width='pack'
-                                )
-        content = urwid.Pile([content, urwid.Divider(), buttons], focus_item=2)
-        content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
-                                             bottom=0), 'wcolor')
+        bottom = urwid.Padding(buttons, align='right', width='pack' )
+        bottom = urwid.AttrMap(urwid.Filler(bottom, valign='bottom'), 'wcolor')
+
+        content = urwid.Pile([top, bottom], focus_item=1)
         content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
+
         content = urwid.Overlay(
             content,
             urwid.AttrMap(urwid.SolidFill(SFILL), 'bgcolor'),
             align='center', valign='middle',
-            width=('relative', 60),
-            height=('relative', 40)
+            width=60,
+            height=20
         )
         content_frame.body = content
 
