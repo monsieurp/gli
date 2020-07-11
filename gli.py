@@ -142,7 +142,7 @@ No: skip this step."""
 
 
 class DiskSelectionDialog(urwid.WidgetWrap):
-    text = 'Please select a disk to partition'
+    text = 'Please select a disk to partition:'
     footer = '[R/r] Detect disks again.'
 
     def __init__(self, top_widget, *args, **kw):
