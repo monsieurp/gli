@@ -166,7 +166,6 @@ class DiskSelectionDialog(urwid.WidgetWrap):
             ) for d in self.disks
         ]
         self.rbuttons = buttons
-
         buttons = urwid.Pile(buttons, focus_item=0)
         buttons = urwid.Padding(buttons, align='left', width='pack')
         buttons = urwid.AttrMap(urwid.Filler(buttons, valign='top'), 'wcolor')
@@ -191,7 +190,7 @@ class DiskSelectionDialog(urwid.WidgetWrap):
             urwid.AttrMap(urwid.SolidFill(SFILL), 'bgcolor'),
             align='center', valign='middle',
             width=50,
-            height=15
+            height=10
         )
 
         content_frame.body = content
