@@ -281,7 +281,7 @@ class DiskPartitioningMethodDialog(urwid.WidgetWrap):
 
             return super().keypress(size, key)
 
-    text = 'Please select a partitioning method'
+    text = 'Please select a partitioning method:'
     footer_infotip_label = [
         'Guided(ext4)',
         'Guided(XFS)',
@@ -309,15 +309,9 @@ class DiskPartitioningMethodDialog(urwid.WidgetWrap):
     def draw(self):
         content_frame = urwid.Frame(body=None)
 
-        ok = urwid.AttrMap(
-            DiskPartitioningMethodDialog.ToolTipOkButton(
-                'OK',
-                self,
-                self.handle_input),
-            'focus',
-            'selectable')
-
-        ok = urwid.GridFlow([ok], 10, 3, 1, 'center')
+        top = urwid.Text(self.text)
+        top = urwid.Padding(top, align='left', width='pack')
+        top = urwid.AttrMap(urwid.Filler(top, valign='top'), 'wcolor')
 
         rbgroup = []
         buttons = [
@@ -327,29 +321,33 @@ class DiskPartitioningMethodDialog(urwid.WidgetWrap):
             ) for d in self.footer_infotip_label
         ]
         self.rbuttons = buttons
-
         buttons = DiskPartitioningMethodDialog.ToolTipPile(
             buttons, self, focus_item=0
         )
+        buttons = urwid.Padding(buttons, align='left', width='pack')
+        buttons = urwid.AttrMap(urwid.Filler(buttons, valign='top'), 'wcolor')
 
-        content = urwid.Text(self.text)
-        content = urwid.Padding(content,
-                                align='center', width='pack'
-                                )
+        ok = urwid.AttrMap(
+            DiskPartitioningMethodDialog.ToolTipOkButton(
+                'OK',
+                self,
+                self.handle_input),
+            'focus',
+            'selectable')
+        ok = urwid.GridFlow([ok], 10, 3, 1, 'center')
 
-        content = urwid.Pile(
-            [content, urwid.Divider(), buttons, urwid.Divider(), ok],
-            focus_item=2)
-        content = urwid.AttrMap(urwid.Filler(content, valign='middle', top=0,
-                                             bottom=0), 'wcolor')
+        bottom = urwid.Padding(ok, align='left', width='pack')
+        bottom = urwid.AttrMap(urwid.Filler(bottom, valign='bottom'), 'wcolor')
+
+        content = urwid.Pile([top, buttons, bottom], focus_item=1)
         content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
 
         content = urwid.Overlay(
             content,
             urwid.AttrMap(urwid.SolidFill(SFILL), 'bgcolor'),
             align='center', valign='middle',
-            width=('relative', 40),
-            height=('relative', 40)
+            width=50,
+            height=15
         )
 
         content_frame.body = content
