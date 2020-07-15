@@ -142,8 +142,29 @@ No: skip this step."""
 
 
 class DiskSelectionDialog(urwid.WidgetWrap):
+    class TabPile(urwid.Pile):
+        def __init__(self, buttons, dialog, *args, **kw):
+            super().__init__(buttons, **kw)
+            self.dialog = dialog
+            self.remember_focus = self.focus_position
+
+        def keypress(self, size, key):
+            if key == 'tab':
+                if self.focus_position == len(self.contents) - 1:
+                    self.focus_position = self.remember_focus
+                else:
+                    self.focus_position = len(self.contents) - 1
+            if key == 'ctrl r':
+                # Detect disks again.
+                self.dialog.detect_disks()
+                # Update dialog with (maybe) newly detected disks.
+                self.dialog.draw()
+                # Redraw dialog.
+                self.dialog.top_widget.draw_dialog()
+            return super().keypress(size, key)
+
     text = 'Please select a disk to partition:'
-    footer = '[R/r] Detect disks again.'
+    footer = '[ctrl+r] Detect disks again.'
 
     def __init__(self, top_widget, *args, **kw):
         super(DiskSelectionDialog, self).__init__(top_widget, *args, **kw)
@@ -182,7 +203,7 @@ class DiskSelectionDialog(urwid.WidgetWrap):
         bottom = urwid.Padding(ok, align='left', width='pack')
         bottom = urwid.AttrMap(urwid.Filler(bottom, valign='bottom'), 'wcolor')
 
-        content = urwid.Pile([top, buttons, bottom], focus_item=1)
+        content = DiskSelectionDialog.TabPile([top, buttons, bottom], self, focus_item=1)
         content = urwid.AttrMap(urwid.LineBox(content), 'wcolor')
 
         content = urwid.Overlay(
@@ -370,7 +391,7 @@ class GLI(urwid.WidgetPlaceholder):
         'header'
     )
     footer = urwid.AttrMap(
-        urwid.Text('[ESC/Q] Quit GLI or restart from here.', align='left'),
+        urwid.Text('[ctrl+q] Quit GLI or restart from here.', align='left'),
         'footer'
     )
 
@@ -389,7 +410,14 @@ class GLI(urwid.WidgetPlaceholder):
             self, PALETTE,
             unhandled_input=self.my_keypress
         )
-        self.loop.run()
+        screen = urwid.raw_display.Screen()
+        try:
+            old = screen.tty_signal_keys('undefined','undefined',
+                    'undefined','undefined','undefined')
+            self.loop.run()
+        finally:
+            screen.tty_signal_keys(*old)
+
 
     def switch_dialog(self, dialog):
         self.dialog = dialog
@@ -461,14 +489,10 @@ class GLI(urwid.WidgetPlaceholder):
             self.loop.draw_screen()
 
     def my_keypress(self, key):
-        # Pass off key management to current dialog if it wishes.
-        if hasattr(self.dialog, 'my_keypress'):
-            self.dialog.my_keypress(key)
-
-        if key in ('esc', 'ESC', 'q', 'Q'):
+        if key == 'ctrl q':
             self.quit_popup(
                 [
-                    'You\'ve hit the ESC key/Q!\n\n',
+                    'You\'ve hit ctrl+q!\n\n',
                     'What do you want to do?'
                 ]
             )
