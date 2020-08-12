@@ -15,11 +15,12 @@ Would you like to begin the installation with GLI?"""
     def __init__(self, top_widget, *args, **kw):
         super(IntroDialog, self).__init__(top_widget, *args, **kw)
         self.top_widget = top_widget
-
         # Store user choices made throughout the installer.
         # Initialise this value here in case the user restarts GLI.
         self.top_widget.user_choices = {}
+        self.draw()
 
+    def draw(self):
         content_frame = urwid.Frame(body=None)
 
         top = urwid.Text(self.text)
