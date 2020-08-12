@@ -9,14 +9,6 @@ class DiskPartitioningMethodDialog(urwid.WidgetWrap):
             super().__init__(buttons, **kw)
             self.remember_focus = self.focus_position
 
-        def keypress(self, size, key):
-            if key == 'tab':
-                if self.focus_position == len(self.contents) - 1:
-                    self.focus_position = self.remember_focus
-                else:
-                    self.focus_position = len(self.contents) - 1
-            return super().keypress(size, key)
-
     class ToolTipPile(urwid.Pile):
         def __init__(self, buttons, dialog, *args, **kw):
             super().__init__(buttons, **kw)
