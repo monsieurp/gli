@@ -1,6 +1,7 @@
 import urwid
 import sys
 import gli
+import gli.dialogs
 
 
 class DiskPartitioningMethodDialog(urwid.WidgetWrap):
@@ -140,5 +141,6 @@ class DiskPartitioningMethodDialog(urwid.WidgetWrap):
                 if _rbutton.get_state():
                     label = _rbutton.get_label()
                     self.top_widget.user_choices['pmethod'] = label
-                    import sys
-                    sys.exit(self.top_widget.user_choices)
+                    self.top_widget.switch_dialog(
+                        gli.dialogs.DiskFormatDialog(self.top_widget)
+                    )
