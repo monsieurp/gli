@@ -103,5 +103,3 @@ class DiskSelectionDialog(urwid.WidgetWrap):
             name = '/dev/' + name
             model = model.replace('\\x20', ' ')
             self.disks.append(f'{name} ¬ {model} ¬ {size}')
-
-
